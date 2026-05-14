@@ -1,5 +1,71 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import profilePhoto from './Miguel.jpeg';
+
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const cursorRef = useRef(null);
+  const animationRef = useRef(null);
+
+  const onMouseMove = useCallback((e) => {
+    if (animationRef.current) return;
+    animationRef.current = requestAnimationFrame(() => {
+      setPosition({ x: e.clientX, y: e.clientY });
+      animationRef.current = null;
+    });
+  }, []);
+
+  const onMouseOver = useCallback((e) => {
+    const target = e.target;
+    if (
+      target.tagName === 'A' ||
+      target.tagName === 'BUTTON' ||
+      target.closest('a') ||
+      target.closest('button')
+    ) {
+      setIsHovering(true);
+    }
+  }, []);
+
+  const onMouseOut = useCallback((e) => {
+    const target = e.target;
+    if (
+      target.tagName === 'A' ||
+      target.tagName === 'BUTTON' ||
+      target.closest('a') ||
+      target.closest('button')
+    ) {
+      setIsHovering(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseout', onMouseOut);
+
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseover', onMouseOver);
+      document.removeEventListener('mouseout', onMouseOut);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [onMouseMove, onMouseOver, onMouseOut]);
+
+  return (
+    <div
+      ref={cursorRef}
+      className={`custom-cursor ${isHovering ? 'hover' : ''}`}
+      style={{
+        transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+        willChange: 'transform',
+      }}
+    >
+      <div className="custom-cursor-ring" />
+      <div className="custom-cursor-dot" />
+    </div>
+  );
+}
 
 const sections = [
   { id: 'hero', label: 'Inicio' },
@@ -25,9 +91,10 @@ function App() {
     document.documentElement.classList.toggle('light', theme === 'light');
     localStorage.setItem('portfolioTheme', theme);
   }, [theme]);
-
+  
   return (
     <div className="min-h-screen bg-background text-slate-100">
+      <CustomCursor />
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
           <div className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Miguel Vilchez</div>
@@ -198,6 +265,8 @@ function App() {
                 { title: 'Python Essentials', description: 'Programación básica en Python y lógica aplicada.' },
                 { title: 'IT Essentials', description: 'Hardware, software y soporte técnico de PC.' },
                 { title: 'MySQL / SQL Server', description: 'Gestión y consultas de bases de datos relacionales.' },
+                { title: 'Excel Intermedio', description: 'Análisis de datos, fórmulas avanzadas y reportes en Excel.' },
+                { title: 'MS Project básico', description: 'Planificación y gestión básica de proyectos.' },
               ].map((item) => (
                 <article key={item.title} className="rounded-[28px] border border-white/10 bg-white/5 p-8 shadow-glow backdrop-blur-xl transition hover:border-cyan-300/30">
                   <h3 className="text-xl font-semibold text-white">{item.title}</h3>
@@ -218,7 +287,7 @@ function App() {
               <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-glow backdrop-blur-xl">
                 <h3 className="text-xl font-semibold text-white">Tecnologías que manejo</h3>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {['Python', 'Java', 'JavaScript', 'HTML', 'CSS', 'SQL', 'MySQL', 'SQL Server'].map((skill) => (
+                  {['Python', 'Java', 'JavaScript', 'HTML', 'CSS', 'SQL', 'MySQL', 'SQL Server', 'Excel', 'MS Project', 'Ofimática', 'Gestión de proyectos', 'Redes y soporte técnico'].map((skill) => (
                     <div key={skill} className="rounded-3xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200">{skill}</div>
                   ))}
                 </div>
@@ -229,6 +298,9 @@ function App() {
                   { label: 'JavaScript', value: 60 },
                   { label: 'HTML / CSS', value: 75 },
                   { label: 'SQL', value: 65 },
+                  { label: 'Excel', value: 80 },
+                  { label: 'MS Project', value: 50 },
+                  { label: 'Redes', value: 60 },
                 ].map((skill) => (
                   <div key={skill.label} className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl">
                     <div className="flex items-center justify-between text-sm text-slate-300">
