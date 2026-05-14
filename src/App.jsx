@@ -193,7 +193,7 @@ function App() {
                   </a>
                 </div>
 <a
-  href="/curriculumpdf/curriculum.pdf"
+  href="/curriculum.pdf"
   className="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/10"
 >
   Descargar CV
